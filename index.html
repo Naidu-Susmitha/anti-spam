@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email</title>
+    <style>
+        /* Your styles here */
+    </style>
+</head>
+<body>
+    <h1>Verify Email</h1>
+    <form id="email-form">
+        <label for="email-input">Email:</label>
+        <input type="email" id="email-input" name="email">
+        <button onclick="checkEmail(event)">Verify</button>
+        <p id="error-message"></p>
+        <p id="verification-result"></p>
+    </form>
+    <script>
+        function validateEmail(email) {
+            const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return regex.test(email);
+        }
+
+        function checkEmail(event) {
+            event.preventDefault();
+            const email = document.getElementById('email-input').value;
+            const errorMessage = document.getElementById('error-message');
+            const verificationResult = document.getElementById('verification-result');
+
+            // Validate email format
+            if (validateEmail(email)) {
+                // Call backend verification API
+                fetch('/verify-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.isVerified) {
+                        verificationResult.textContent = 'No issues with this email. It is genuine.';
+                        verificationResult.style.color = 'green';
+                    } else {
+                        verificationResult.textContent = 'Something suspicious with this email. Be careful!';
+                        verificationResult.style.color = 'red';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    errorMessage.textContent = 'Error verifying email';
+                });
+            } else {
+                errorMessage.textContent = 'Email is invalid';
+            }
+        }
+    </script>
+</body>
+</html>
+
